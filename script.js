@@ -118,6 +118,12 @@ const displayBoard = board => {
   }
 };
 
+// Declare function to update number of moves and matches
+const updateStats = () => {
+  moves.innerHTML = numberOfMoves;
+  matches.innerHTML = numberOfMatches;
+};
+
 // Function to update game button and game status
 const updateGameStatus = () => {
   if (gameStatus === "Stopped") {
@@ -148,6 +154,7 @@ const updateGameStatus = () => {
     // Reinstate click functionality to board
     boardElement.addEventListener("click", handleBoardClick);
 
+    // Restart timer
     gameTimer = setInterval(timer, 1000);
 
     // Update game status
@@ -174,7 +181,23 @@ const startGame = () => {
   init();
 };
 
-// TODO: Complete game
+// Check number of matches
+const checkMatches = () => {
+  if (numberOfMatches === 8) {
+    // Show success message
+    completeGame();
+
+    // Clear timer
+    clearTimeout(createTimer);
+  }
+};
+
+// Reset number of flipped cards
+const resetFlipped = () => {
+  flippedCards = 0;
+};
+
+// Complete game
 const completeGame = () => {
   // Display success message
   gameFinsihedMessage(numberOfMoves, gameTime);
@@ -237,6 +260,8 @@ const resetGame = () => {
   numberOfMoves = 0;
   numberOfMatches = 0;
   gameTime = 0;
+
+  resetFlipped();
 };
 
 // Create timer
@@ -308,6 +333,7 @@ const handleBoardClick = event => {
       cardOne.classList.add("matched");
       cardTwo.classList.add("matched");
     } else {
+      // Turn cards back over
       setTimeout(() => {
         cardOne.style.transform = "rotateY(0deg)";
         cardTwo.style.transform = "rotateY(0deg)";
@@ -317,22 +343,14 @@ const handleBoardClick = event => {
       cardTwo.classList.remove("flipped");
     }
 
-    if (numberOfMatches === 8) {
-      // Show success message
-      completeGame();
+    // Update number of moves and matches
+    updateStats();
 
-      // Show congratulations message
+    // Check number of matches
+    checkMatches();
 
-      // Clear timer
-      clearTimeout(createTimer);
-    }
-
-    // Update number of moves
-    moves.innerHTML = numberOfMoves;
-    matches.innerHTML = numberOfMatches;
-
-    // Reset flipped cards;
-    flippedCards = 0;
+    // Reset number of flipped cards
+    resetFlipped();
   }
 };
 
@@ -358,8 +376,7 @@ const init = () => {
 // Add copyright tags to footer
 const generateCopyright = () => {
   let html = "";
-  let date = new Date();
-  let year = date.getFullYear();
+  let year = new Date().getFullYear();
 
   html += `<p>Copyright &copy ${year}`;
   html += " | ";
