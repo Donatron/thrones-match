@@ -5,25 +5,28 @@ require("./fonts/game-of-thrones.ttf");
 // Import HTML file
 require("./index.html");
 
-// Import card images
-require("./img/characters/arya-stark.jpg");
-require("./img/characters/cersei-lannister.jpg");
-require("./img/characters/danaerys-targaeryan.jpg");
-require("./img/characters/jaime-lannister.jpg");
-require("./img/characters/jon-snow.jpg");
-require("./img/characters/ned-stark.jpg");
-require("./img/characters/sansa-stark.jpg");
-require("./img/characters/tyrion-lannister.jpg");
-require("./img/covers/iron-throne.png");
+const {
+  boardElement,
+  gameButton,
+  footer,
+  matches,
+  moves,
+  stats,
+  time,
+} = require('./js/DOMElements')
 
-// Declare variables for document elements
-const footer = document.querySelector("#footer");
-const moves = document.querySelector("#moves");
-const matches = document.querySelector("#matches");
-const time = document.querySelector("#time");
-const stats = document.querySelector(".stats");
-const gameButton = document.querySelector("#game-button");
-const boardElement = document.querySelector(".board");
+const {
+  getCharacterNames,
+  getRandomCharacters,
+} = require('./js/characters')
+
+const {
+  createCard,
+  createRows,
+  gameFinsihedMessage,
+  gameRulesMessage,
+  generateCopyright,
+} = require('./js/markup')
 
 // Declare variables for game information
 let numberOfMoves = 0;
@@ -41,71 +44,6 @@ let timer;
 let gameTime;
 let timerRunning = false;
 let gameStatus = "Stopped";
-
-// Create array of card image source files
-const imagesArray = [
-  "arya-stark.jpg",
-  "cersei-lannister.jpg",
-  "danaerys-targaeryan.jpg",
-  "jaime-lannister.jpg",
-  "jon-snow.jpg",
-  "ned-stark.jpg",
-  "sansa-stark.jpg",
-  "tyrion-lannister.jpg",
-  "arya-stark.jpg",
-  "cersei-lannister.jpg",
-  "danaerys-targaeryan.jpg",
-  "jaime-lannister.jpg",
-  "jon-snow.jpg",
-  "ned-stark.jpg",
-  "sansa-stark.jpg",
-  "tyrion-lannister.jpg"
-];
-
-// Get all available character names
-const getCharacterNames = () => {
-  const characters = [];
-  for (let image of imagesArray) {
-    characters.push(image);
-  }
-  return characters;
-};
-
-// Create array of random characters;
-const getRandomCharacters = () => {
-  let randomCharacters = [];
-  let characters = getCharacterNames();
-
-  while (characters.length) {
-    let index = Math.floor(Math.random(characters.length) * characters.length);
-    randomCharacters.push(characters[index]);
-    characters.splice(index, 1);
-  }
-  return randomCharacters;
-};
-
-// Add rows to Game Board
-const createRows = n => {
-  // Create HTML variable
-  let html = "";
-  // Iternate 'n' times and create a row for each iteration
-  for (let i = 1; i <= n; i++) {
-    html += `<div class="row-${i}"><div class="tile-container"></div></div>`;
-  }
-
-  boardElement.innerHTML = html;
-};
-
-// Declare function to create cards
-const createCard = (src, id) => {
-  let html = `<div class="card" id="card-${id}">`;
-  html += '<img src="img/covers/iron-throne.png" alt="" class="tile side-a" />';
-  html += '<div class="side-b">';
-  html += `<img src="img/characters/${src}" alt="${src}" />`;
-  html += "</div></div>";
-
-  return html;
-};
 
 // Create game board
 const createBoard = () => {
@@ -186,7 +124,7 @@ const updateGameButton = value => {
 // Start game
 const startGame = () => {
   // Add rows to game board
-  createRows(4);
+  createRows(4, boardElement);
 
   // Assign all cards to board;
   // let board = createBoard();
@@ -216,7 +154,7 @@ const resetFlipped = () => {
 // Complete game
 const completeGame = () => {
   // Display success message
-  gameFinsihedMessage(numberOfMoves, gameTime);
+  gameFinsihedMessage(numberOfMoves, gameTime, boardElement);
 
   // Update game status
   gameStatus = "Stopped";
@@ -226,49 +164,6 @@ const completeGame = () => {
 
   // Clear Timer
   clearInterval(gameTimer);
-};
-
-// Format gameTime for finish message
-const formatGameTime = time => {
-  let sec = Math.floor(time % 60);
-  let min = Math.floor(time / 60);
-
-  if (sec < 10) {
-    sec = `0${sec}`;
-  }
-  if (min < 10) {
-    min = `0${min}`;
-  }
-
-  return `${min} : ${sec}`;
-};
-
-// Create game completed message
-const gameFinsihedMessage = (moves, time) => {
-  let totalTime = formatGameTime(time);
-
-  let html = "<div class='success'>";
-  html += "<h4>CONGRATULATIONS!</h4>";
-  html += `<p>You found all matches in ${moves} moves</p>`;
-  html += `<p>And you took ${totalTime} minutes</p>`;
-  html += "<p>You've managed to ward off the white walkers.</p>";
-  html += "<p>For now.......</p>";
-  html += "</div>";
-
-  boardElement.innerHTML = html;
-};
-
-// Create game rules message
-const gameRulesMessage = () => {
-  let html = "<div class='success'>";
-  html += "<h4>How to play</h4>";
-  html += `<p>Click the "Start Game" button to reveal 16 random cards</p>`;
-  html += `<p>Select any card to reveal the hidden character.</p>`;
-  html += "<p>Select a second card to try to find a matching pair.</p>";
-  html += "<p>Reveal all 8 matching characters to win</p>";
-  html += "</div>";
-
-  boardElement.innerHTML = html;
 };
 
 // Add game button click functionality
@@ -403,22 +298,9 @@ const initGame = () => {
 };
 
 const init = () => {
-  gameRulesMessage();
+  gameRulesMessage(boardElement);
 };
 
 init();
-
-// Add copyright tags to footer
-const generateCopyright = () => {
-  let html = "";
-  let year = new Date().getFullYear();
-
-  html += `<p>Copyright &copy ${year}`;
-  html += " | ";
-  html += "<a href='https://donatron.github.io/portfolio' target='_blank' >";
-  html += "Don Macarthur </a></p>";
-
-  return html;
-};
 
 footer.innerHTML = generateCopyright();
